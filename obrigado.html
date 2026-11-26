@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entrar no Grupo VIP de Crocheteiras</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:Manrope,system-ui,sans-serif;color:#292524;
+    background:linear-gradient(135deg,#f6efe8 0%,#ead8c6 100%)}
+  main{width:100%;max-width:440px;background:#fbf5ea;border:3px solid rgba(255,255,255,.75);border-radius:28px;padding:32px 26px;box-shadow:0 18px 36px rgba(73,41,25,.18)}
+  .ok{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#005f46}
+  h1{margin:10px 0 8px;font-size:30px;line-height:1.1;letter-spacing:-.03em}
+  p{margin:0;color:#57534d;font-size:16px;line-height:1.5}
+  label{display:block;margin-top:22px;font-size:14px;font-weight:700}
+  input{width:100%;margin-top:8px;min-height:54px;border-radius:999px;border:2px solid #e3d4c4;background:#fff;padding:0 20px;font:inherit;font-size:17px;outline:none}
+  input:focus{border-color:#1d8a3e}
+  button{width:100%;margin-top:14px;min-height:58px;border:0;border-radius:999px;background:#1d8a3e;color:#fff;font:inherit;font-size:18px;font-weight:800;cursor:pointer}
+  button:disabled{opacity:.6}
+  .aviso{margin-top:16px;padding:14px 16px;border-radius:18px;font-size:15px;line-height:1.45;display:none}
+  .aviso.erro{display:block;background:#f7dfdc;color:#7a2926}
+  .aviso.info{display:block;background:#e3f1e6;color:#136b2d}
+  .nota{margin-top:18px;font-size:13px;color:#79716b}
+</style>
+</head>
+<body>
+<main>
+  <span class="ok">Pagamento aprovado 🧶</span>
+  <h1>Falta só entrar no grupo!</h1>
+  <p>Digite o e-mail que você usou na compra. O acesso é seu e funciona <strong>uma única vez</strong>.</p>
+  <form id="f" novalidate>
+    <label for="email">E-mail da compra</label>
+    <input id="email" name="email" type="email" autocomplete="email" placeholder="voce@email.com" required>
+    <button id="b" type="submit">Entrar no grupo</button>
+  </form>
+  <div id="aviso" class="aviso" role="alert"></div>
+  <p class="nota">Depois de tocar, peça para entrar no grupo e aguarde a aprovação. Guarde o grupo no seu WhatsApp: esse acesso não abre de novo.</p>
+</main>
+<script>
+  const f=document.getElementById('f'),b=document.getElementById('b'),aviso=document.getElementById('aviso'),campo=document.getElementById('email');
+  const q=new URLSearchParams(location.search); const e=q.get('email')||q.get('customer_email'); if(e) campo.value=e;
+  f.addEventListener('submit',async(ev)=>{
+    ev.preventDefault(); aviso.className='aviso'; b.disabled=true; b.textContent='Conferindo…';
+    try{
+      const r=await fetch('/api/entrar',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:campo.value})});
+      const d=await r.json();
+      if(d.url){ aviso.className='aviso info'; aviso.textContent='Tudo certo! Abrindo o grupo…'; location.href=d.url; return; }
+      aviso.className='aviso erro'; aviso.textContent=d.mensagem||'Não deu certo. Tente de novo em instantes.';
+    }catch{ aviso.className='aviso erro'; aviso.textContent='Sem conexão. Tente de novo em instantes.'; }
+    b.disabled=false; b.textContent='Entrar no grupo';
+  });
+</script>
+</body>
+</html>
