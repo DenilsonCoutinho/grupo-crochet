@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entrar no Grupo VIP de Crocheteiras</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:Manrope,system-ui,sans-serif;color:#292524;
+    background:linear-gradient(135deg,#f6efe8 0%,#ead8c6 100%)}
+  main{width:100%;max-width:440px;background:#fbf5ea;border:3px solid rgba(255,255,255,.75);border-radius:28px;padding:32px 26px;box-shadow:0 18px 36px rgba(73,41,25,.18)}
+  .ok{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#005f46}
+  h1{margin:10px 0 8px;font-size:30px;line-height:1.1;letter-spacing:-.03em}
+  p{margin:0;color:#57534d;font-size:16px;line-height:1.5}
+  label{display:block;margin-top:22px;font-size:14px;font-weight:700}
+  input{width:100%;margin-top:8px;min-height:54px;border-radius:999px;border:2px solid #e3d4c4;background:#fff;padding:0 20px;font:inherit;font-size:17px;outline:none}
+  input:focus{border-color:#1d8a3e}
+  button{width:100%;margin-top:14px;min-height:58px;border:0;border-radius:999px;background:#1d8a3e;color:#fff;font:inherit;font-size:18px;font-weight:800;cursor:pointer}
+  button:disabled{opacity:.6}
+  .aviso{margin-top:16px;padding:14px 16px;border-radius:18px;font-size:15px;line-height:1.45;display:none}
+  .aviso.erro{display:block;background:#f7dfdc;color:#7a2926}
+  .aviso.info{display:block;background:#e3f1e6;color:#136b2d}
+  .nota{margin-top:18px;font-size:13px;color:#79716b}
+</style>
+</head>
+<body>
+<main id="entrada">
+  <span class="ok" id="tag">Pagamento aprovado 🧶</span>
+  <h1 id="titulo">Falta só entrar no grupo!</h1>
+  <p id="texto">Carregando…</p>
+  <button id="b" type="button" disabled>Entrar no grupo</button>
+  <div id="aviso" class="aviso" role="alert"></div>
+  <p class="nota" id="nota">Esse botão funciona <strong>uma única vez</strong>. Depois de tocar, peça para entrar no grupo e aguarde a aprovação. Guarde o grupo no seu WhatsApp.</p>
+</main>
+<script>
+  const id=(location.pathname.split('/').filter(Boolean)[1]||'').toLowerCase();
+  const b=document.getElementById('b'),aviso=document.getElementById('aviso'),titulo=document.getElementById('titulo'),texto=document.getElementById('texto'),tag=document.getElementById('tag'),nota=document.getElementById('nota');
+  function desativar(t,msg,tagTxt){ b.disabled=true; b.textContent='Link já utilizado'; titulo.textContent=t; texto.innerHTML=msg; if(tagTxt) tag.textContent=tagTxt; nota.style.display='none'; }
+  function estado(d){
+    if(d.estado==='disponivel'){ titulo.textContent=d.nome?`${d.nome}, falta só entrar no grupo!`:'Falta só entrar no grupo!'; texto.innerHTML='Toque no botão para abrir o <strong>Grupo VIP de Crocheteiras</strong> no WhatsApp.'; b.disabled=false; return; }
+    if(d.estado==='usado') return desativar('Esse link já foi usado','Cada link libera uma entrada só. Se foi você, abra o grupo pelo seu WhatsApp ou aguarde a aprovação.','Entrada já realizada');
+    if(d.estado==='estornado') return desativar('Acesso cancelado','Essa compra foi estornada, então o link não vale mais.','Acesso cancelado');
+    desativar('Link inválido','Não encontramos esse convite. Confira se abriu o link completo do e-mail.','Link inválido');
+  }
+  fetch('/api/convite?id='+encodeURIComponent(id)).then(r=>r.json()).then(estado).catch(()=>{ texto.textContent='Sem conexão. Atualize a página.'; });
+  b.addEventListener('click',async()=>{
+    b.disabled=true; b.textContent='Abrindo o grupo…';
+    try{
+      const r=await fetch('/api/convite',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id})});
+      const d=await r.json();
+      if(d.url){ b.textContent='Link já utilizado'; aviso.className='aviso info'; aviso.textContent='Tudo certo! Abrindo o WhatsApp…'; location.href=d.url; return; }
+      estado(d);
+    }catch{ b.disabled=false; b.textContent='Entrar no grupo'; aviso.className='aviso erro'; aviso.textContent='Sem conexão. Tente de novo.'; }
+  });
+</script>
+</body>
+</html>

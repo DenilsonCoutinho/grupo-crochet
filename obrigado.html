@@ -29,29 +29,9 @@
 <body>
 <main>
   <span class="ok">Pagamento aprovado 🧶</span>
-  <h1>Falta só entrar no grupo!</h1>
-  <p>Digite o e-mail que você usou na compra. O acesso é seu e funciona <strong>uma única vez</strong>.</p>
-  <form id="f" novalidate>
-    <label for="email">E-mail da compra</label>
-    <input id="email" name="email" type="email" autocomplete="email" placeholder="voce@email.com" required>
-    <button id="b" type="submit">Entrar no grupo</button>
-  </form>
-  <div id="aviso" class="aviso" role="alert"></div>
-  <p class="nota">Depois de tocar, peça para entrar no grupo e aguarde a aprovação. Guarde o grupo no seu WhatsApp: esse acesso não abre de novo.</p>
+  <h1>Seu link de entrada está no seu e-mail!</h1>
+  <p>Enviamos agora para o e-mail da compra um link só seu para entrar no <strong>Grupo VIP de Crocheteiras</strong>. Abra o e-mail e toque em <strong>"Abrir minha entrada"</strong>.</p>
+  <p class="nota">Não chegou em alguns minutos? Confira a caixa de spam e a aba Promoções. Se pagou com boleto, o e-mail chega quando o boleto compensar.</p>
 </main>
-<script>
-  const f=document.getElementById('f'),b=document.getElementById('b'),aviso=document.getElementById('aviso'),campo=document.getElementById('email');
-  const q=new URLSearchParams(location.search); const e=q.get('email')||q.get('customer_email'); if(e) campo.value=e;
-  f.addEventListener('submit',async(ev)=>{
-    ev.preventDefault(); aviso.className='aviso'; b.disabled=true; b.textContent='Conferindo…';
-    try{
-      const r=await fetch('/api/entrar',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:campo.value})});
-      const d=await r.json();
-      if(d.url){ aviso.className='aviso info'; aviso.textContent='Tudo certo! Abrindo o grupo…'; location.href=d.url; return; }
-      aviso.className='aviso erro'; aviso.textContent=d.mensagem||'Não deu certo. Tente de novo em instantes.';
-    }catch{ aviso.className='aviso erro'; aviso.textContent='Sem conexão. Tente de novo em instantes.'; }
-    b.disabled=false; b.textContent='Entrar no grupo';
-  });
-</script>
 </body>
 </html>

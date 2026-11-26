@@ -1,0 +1,3 @@
+{
+  "rewrites": [{ "source": "/entrar/:id", "destination": "/entrar.html" }]
+}
